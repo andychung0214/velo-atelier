@@ -1,4 +1,5 @@
 import { createMaterials } from './materials.js';
+import { createTextDecal } from './text-decal.js';
 import {
   curvedTube,
   disposeHierarchy,
@@ -131,7 +132,7 @@ function buildFrame(THREE, root, config, materials) {
   }
 
   root.add(frame, topTube, downTube, fork);
-  return { bb, seat, headTop, headBottom };
+  return { bb, seat, headTop, headBottom, downTube };
 }
 
 function createWheel(THREE, style, x, isRear, materials) {
@@ -494,6 +495,26 @@ function hasPartAncestor(object) {
   return false;
 }
 
+function nearestPartId(object) {
+  let current = object;
+  while (current) {
+    if (current.userData.partId) return current.userData.partId;
+    current = current.parent;
+  }
+  return null;
+}
+
+function isolatePartMaterials(root) {
+  root.traverse((object) => {
+    if (!object.isMesh || !hasPartAncestor(object)) return;
+    if (Array.isArray(object.material)) {
+      object.material = object.material.map((material) => material.clone());
+    } else if (object.material) {
+      object.material = object.material.clone();
+    }
+  });
+}
+
 function updateColors(root, config) {
   root.traverse((object) => {
     const key = object.userData.materialKey;
@@ -510,6 +531,7 @@ export function createBikeModel(THREE, initialConfig) {
   let config = { ...initialConfig };
   let selectable = [];
   let selectedPartId = 'frame';
+  let textDecal = null;
 
   function rebuild(nextConfig) {
     disposeHierarchy(root);
@@ -523,10 +545,39 @@ export function createBikeModel(THREE, initialConfig) {
     buildContactPoints(THREE, root, materials, framePoints);
     buildBottleCages(THREE, root, materials);
 
+    textDecal = null;
+    if (typeof document !== 'undefined') {
+      textDecal = createTextDecal(THREE, {
+        text: nextConfig.frameText,
+        color: nextConfig.textColor,
+        font: nextConfig.font,
+        start: framePoints.bb,
+        end: framePoints.headBottom,
+      });
+      framePoints.downTube.add(textDecal.group);
+    }
+    isolatePartMaterials(root);
+
     selectable = [];
     root.traverse((object) => {
       if (object.isMesh && hasPartAncestor(object)) selectable.push(object);
     });
+    selectPart(selectedPartId);
+  }
+
+  function selectPart(partId) {
+    selectedPartId = partId;
+    root.traverse((object) => {
+      if (!object.isMesh) return;
+      const selected = nearestPartId(object) === selectedPartId;
+      const materials = Array.isArray(object.material) ? object.material : [object.material];
+      for (const material of materials) {
+        if (!material?.emissive) continue;
+        material.emissive.set(selected ? '#8f1d2c' : '#000000');
+        material.emissiveIntensity = selected ? 0.28 : 1;
+      }
+    });
+    return selectedPartId;
   }
 
   rebuild(config);
@@ -543,12 +594,14 @@ export function createBikeModel(THREE, initialConfig) {
         rebuild(config);
       } else {
         updateColors(root, config);
+        textDecal?.update({
+          text: config.frameText,
+          color: config.textColor,
+          font: config.font,
+        });
       }
     },
-    selectPart(partId) {
-      selectedPartId = partId;
-      return selectedPartId;
-    },
+    selectPart,
     dispose() {
       disposeHierarchy(root);
       root.clear();

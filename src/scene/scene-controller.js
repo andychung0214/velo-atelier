@@ -163,7 +163,8 @@ export async function createSceneController({
     pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
     pointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
     raycaster.setFromCamera(pointer, camera);
-    const [hit] = raycaster.intersectObjects(bike.selectable, false);
+    const hits = raycaster.intersectObjects(bike.selectable, false);
+    const [hit] = hits;
     const partId = hit ? getPartId(hit.object) : null;
     if (partId) onPartSelect(partId);
   }
