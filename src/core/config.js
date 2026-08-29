@@ -1,5 +1,6 @@
 import { COLOR_TARGETS, OPTION_CATALOG } from '../data/parts.js';
 import { PRESETS } from '../data/presets.js';
+import { FONT_OPTIONS, normalizeFrameText } from './text.js';
 
 const OPTION_KEYS = Object.freeze(Object.keys(OPTION_CATALOG));
 const OPTION_VALUES = Object.freeze(Object.fromEntries(
@@ -9,21 +10,13 @@ const OPTION_VALUES = Object.freeze(Object.fromEntries(
   ]),
 ));
 const COLOR_KEYS = Object.freeze(COLOR_TARGETS.map(({ key }) => key));
-const FONT_VALUES = new Set(['corsa', 'editorial', 'mono', 'cjk']);
+const FONT_VALUES = new Set(FONT_OPTIONS.map(({ value }) => value));
 const HEX_COLOR = /^#[0-9a-f]{6}$/i;
 
 export const DEFAULT_CONFIG = Object.freeze({ ...PRESETS[0].config });
 
 function isRecord(value) {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
-}
-
-function normalizeText(value) {
-  if (typeof value !== 'string') {
-    return DEFAULT_CONFIG.frameText;
-  }
-
-  return Array.from(value.trim()).slice(0, 24).join('');
 }
 
 export function normalizeConfig(candidate) {
@@ -43,7 +36,7 @@ export function normalizeConfig(candidate) {
   }
 
   if (Object.hasOwn(source, 'frameText')) {
-    config.frameText = normalizeText(source.frameText);
+    config.frameText = normalizeFrameText(source.frameText, 24);
   }
 
   if (FONT_VALUES.has(source.font)) {

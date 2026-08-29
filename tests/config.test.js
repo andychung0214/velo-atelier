@@ -58,3 +58,13 @@ test('normalizeConfig 接受空值並回傳獨立預設物件', () => {
   assert.notEqual(first, DEFAULT_CONFIG);
   assert.notEqual(first, second);
 });
+
+test('配置正規化會清理車架文字並拒絕未知字體', () => {
+  const config = normalizeConfig({
+    frameText: '  疾輪\u0000  風の道  ',
+    font: 'comic-sans',
+  });
+
+  assert.equal(config.frameText, '疾輪 風の道');
+  assert.equal(config.font, DEFAULT_CONFIG.font);
+});
