@@ -103,7 +103,7 @@
         </header>
 
         <section class="bike-stage" aria-label="可互動 3D 公路車">
-          <canvas id="bike-canvas" tabindex="0" aria-label="可旋轉與縮放的客製化公路車"></canvas>
+          <canvas id="bike-canvas" tabindex="0" aria-describedby="interaction-hint" aria-label="可旋轉與縮放的客製化公路車"></canvas>
           <div class="scene-fallback" id="scene-fallback" role="alert" hidden>
             <p class="fallback-code">WEBGL / UNAVAILABLE</p>
             <h2>3D 舞台暫時無法啟動</h2>
@@ -113,7 +113,7 @@
           <div class="stage-scale" aria-hidden="true">
             <span>0</span><i></i><span>700C</span>
           </div>
-          <p class="interaction-hint"><span>DRAG</span> 旋轉　<span>SCROLL / PINCH</span> 縮放　<span>CLICK</span> 檢視零件</p>
+          <p class="interaction-hint" id="interaction-hint"><span>DRAG / ARROWS</span> 旋轉　<span>SCROLL / PINCH</span> 縮放　<span>CLICK</span> 檢視零件</p>
         </section>
       </main>
 

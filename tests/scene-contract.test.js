@@ -5,7 +5,13 @@ import * as THREE from 'three';
 import { DEFAULT_CONFIG } from '../src/core/config.js';
 import { createBikeModel } from '../src/scene/bike-model.js';
 import { tubeBetween } from '../src/scene/primitives.js';
-import { getRenderProfile } from '../src/scene/scene-controller.js';
+import {
+  getCameraDistanceScale,
+  getKeyboardCameraAction,
+  getRenderProfile,
+  getResponsiveCameraTargetX,
+  getResponsiveFov,
+} from '../src/scene/scene-controller.js';
 import { createTextDecal } from '../src/scene/text-decal.js';
 
 function nearestPartId(object) {
@@ -157,4 +163,32 @@ test('零件選取只高亮目前 partId', () => {
   assert.ok(selectedMeshes.some((mesh) => mesh.material.emissive?.getHex() !== 0));
   assert.ok(frameMeshes.every((mesh) => !mesh.material.emissive || mesh.material.emissive.getHex() === 0));
   bike.dispose();
+});
+
+test('Canvas 鍵盤操作映射旋轉、縮放與重設視角', () => {
+  assert.deepEqual(getKeyboardCameraAction('ArrowLeft'), { type: 'orbit', amount: -0.1 });
+  assert.deepEqual(getKeyboardCameraAction('ArrowRight'), { type: 'orbit', amount: 0.1 });
+  assert.deepEqual(getKeyboardCameraAction('ArrowUp'), { type: 'zoom', factor: 0.9 });
+  assert.deepEqual(getKeyboardCameraAction('ArrowDown'), { type: 'zoom', factor: 1.1 });
+  assert.deepEqual(getKeyboardCameraAction('Home'), { type: 'reset' });
+  assert.equal(getKeyboardCameraAction('A'), null);
+});
+
+test('狹長舞台會增加初始相機距離以容納完整車體', () => {
+  assert.equal(getCameraDistanceScale(1, 714), 1);
+  assert.equal(getCameraDistanceScale(0.85, 375), 1.45);
+  assert.equal(getCameraDistanceScale(0.52, 519), 1.55);
+});
+
+test('窄舞台使用較寬視野保留完整車體', () => {
+  assert.equal(getResponsiveFov(375), 50);
+  assert.equal(getResponsiveFov(519), 42);
+  assert.equal(getResponsiveFov(714), 34);
+});
+
+test('行動舞台會把取景中心移向前輪以平衡三分之四視角', () => {
+  assert.equal(getResponsiveCameraTargetX(375), 0.32);
+  assert.equal(getResponsiveCameraTargetX(420), 0.32);
+  assert.equal(getResponsiveCameraTargetX(519), 0);
+  assert.equal(getResponsiveCameraTargetX(714), 0);
 });

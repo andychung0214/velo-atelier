@@ -15,6 +15,35 @@ export function getRenderProfile({ width, devicePixelRatio, reducedMotion }) {
   };
 }
 
+export function getCameraDistanceScale(aspect, width = Number.POSITIVE_INFINITY) {
+  const aspectScale = !Number.isFinite(aspect) || aspect >= 1
+    ? 1
+    : Math.min(1.55, Number((1 / aspect).toFixed(2)));
+  const compactScale = width <= 420 ? 1.45 : 1;
+  return Math.max(aspectScale, compactScale);
+}
+
+export function getResponsiveFov(width) {
+  if (width <= 420) return 50;
+  if (width <= 600) return 42;
+  return 34;
+}
+
+export function getResponsiveCameraTargetX(width) {
+  return width <= 420 ? 0.32 : 0;
+}
+
+export function getKeyboardCameraAction(key) {
+  const actions = {
+    ArrowLeft: { type: 'orbit', amount: -0.1 },
+    ArrowRight: { type: 'orbit', amount: 0.1 },
+    ArrowUp: { type: 'zoom', factor: 0.9 },
+    ArrowDown: { type: 'zoom', factor: 1.1 },
+    Home: { type: 'reset' },
+  };
+  return actions[key] ? { ...actions[key] } : null;
+}
+
 function getPartId(object) {
   let current = object;
   while (current) {
@@ -64,7 +93,7 @@ export async function createSceneController({
   controls.rotateSpeed = 0.62;
   controls.zoomSpeed = 0.75;
   controls.minDistance = 3.8;
-  controls.maxDistance = 11;
+  controls.maxDistance = 13;
   controls.minPolarAngle = Math.PI * 0.24;
   controls.maxPolarAngle = Math.PI * 0.72;
   controls.enablePan = false;
@@ -113,6 +142,7 @@ export async function createSceneController({
   let isVisible = !document.hidden;
   let currentConfig = { ...config };
   let autoRotateRequested = Boolean(config.autoRotate);
+  let initialSizeApplied = false;
   const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
 
   function currentProfile() {
@@ -131,14 +161,24 @@ export async function createSceneController({
     renderer.setPixelRatio(profile.pixelRatio);
     renderer.setSize(width, height, false);
     camera.aspect = width / height;
+    camera.fov = getResponsiveFov(width);
     camera.updateProjectionMatrix();
     keyLight.shadow.mapSize.set(profile.shadowMapSize, profile.shadowMapSize);
     controls.autoRotate = autoRotateRequested && profile.autoRotateAllowed;
+    if (!initialSizeApplied) {
+      resetView();
+      initialSizeApplied = true;
+    }
   }
 
   function resetView() {
-    camera.position.copy(CAMERA_POSITION);
-    controls.target.copy(CAMERA_TARGET);
+    const responsiveTarget = CAMERA_TARGET.clone();
+    responsiveTarget.x = getResponsiveCameraTargetX(canvas.clientWidth);
+    const offset = CAMERA_POSITION.clone()
+      .sub(CAMERA_TARGET)
+      .multiplyScalar(getCameraDistanceScale(camera.aspect, canvas.clientWidth));
+    camera.position.copy(responsiveTarget).add(offset);
+    controls.target.copy(responsiveTarget);
     controls.update();
   }
 
@@ -169,6 +209,31 @@ export async function createSceneController({
     if (partId) onPartSelect(partId);
   }
 
+  function onCanvasKeyDown(event) {
+    const action = getKeyboardCameraAction(event.key);
+    if (!action) return;
+    event.preventDefault();
+
+    if (action.type === 'reset') {
+      resetView();
+      return;
+    }
+
+    const offset = camera.position.clone().sub(controls.target);
+    if (action.type === 'orbit') {
+      offset.applyAxisAngle(new THREE.Vector3(0, 1, 0), action.amount);
+    } else if (action.type === 'zoom') {
+      const distance = THREE.MathUtils.clamp(
+        offset.length() * action.factor,
+        controls.minDistance,
+        controls.maxDistance,
+      );
+      offset.setLength(distance);
+    }
+    camera.position.copy(controls.target).add(offset);
+    controls.update();
+  }
+
   function onVisibilityChange() {
     isVisible = !document.hidden;
   }
@@ -179,6 +244,7 @@ export async function createSceneController({
 
   canvas.addEventListener('pointerdown', onPointerDown);
   canvas.addEventListener('pointerup', onPointerUp);
+  canvas.addEventListener('keydown', onCanvasKeyDown);
   document.addEventListener('visibilitychange', onVisibilityChange);
   reducedMotionQuery.addEventListener?.('change', onReducedMotionChange);
 
@@ -216,6 +282,7 @@ export async function createSceneController({
       reducedMotionQuery.removeEventListener?.('change', onReducedMotionChange);
       canvas.removeEventListener('pointerdown', onPointerDown);
       canvas.removeEventListener('pointerup', onPointerUp);
+      canvas.removeEventListener('keydown', onCanvasKeyDown);
       controls.dispose();
       bike.dispose();
       ground.geometry.dispose();

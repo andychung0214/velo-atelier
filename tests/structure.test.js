@@ -37,6 +37,9 @@ test('首頁提供視角、旋轉及重設操作', () => {
   for (const id of ['preset-list', 'spec-controls', 'color-controls', 'text-controls']) {
     assert.match(html, new RegExp(`id=["']${id}["']`));
   }
+
+  assert.match(html, /id="bike-canvas"[^>]*tabindex="0"[^>]*aria-describedby="interaction-hint"/);
+  assert.match(html, /id="interaction-hint"/);
 });
 
 test('首頁包含固定版本 three.js 與完整 SEO 中繼資料', () => {
