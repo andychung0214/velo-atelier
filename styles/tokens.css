@@ -1,0 +1,27 @@
+:root {
+  color-scheme: light;
+  --color-paper: #f1ecdf;
+  --color-paper-deep: #d8d0c0;
+  --color-ink: #171717;
+  --color-ink-soft: #4e4b45;
+  --color-corsa: #8f1d2c;
+  --color-pista: #1f4d3a;
+  --color-alloy: #a7aaad;
+  --color-line: #b8b0a1;
+  --color-white: #fffdf7;
+  --font-display: "Barlow Condensed", "Arial Narrow", sans-serif;
+  --font-body: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+  --font-data: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+  --font-editorial: "Noto Serif TC", Georgia, serif;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --line-hair: 1px solid var(--color-line);
+  --ease-mechanical: cubic-bezier(0.2, 0.72, 0.2, 1);
+  --duration-fast: 160ms;
+  --duration-stage: 420ms;
+}

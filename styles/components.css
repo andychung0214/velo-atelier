@@ -1,0 +1,472 @@
+.brand-lockup {
+  display: flex;
+  gap: var(--space-4);
+  align-items: flex-start;
+}
+
+.brand-mark {
+  flex: 0 0 42px;
+  width: 42px;
+  fill: none;
+  stroke: var(--color-corsa);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.brand-kicker,
+.section-code,
+.build-number,
+.fallback-code,
+.detail-eyebrow {
+  margin-bottom: var(--space-2);
+  color: var(--color-corsa);
+  font-family: var(--font-data);
+  font-size: 0.625rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  line-height: 1.4;
+}
+
+.identity-panel h1 {
+  margin-bottom: var(--space-1);
+  font-family: var(--font-display);
+  font-size: clamp(3.25rem, 5.2vw, 5.8rem);
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  line-height: 0.72;
+  text-transform: uppercase;
+}
+
+.brand-roman {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.17em;
+}
+
+.brand-intro {
+  max-width: 16rem;
+  margin-top: clamp(2rem, 8vh, 7rem);
+  color: var(--color-ink-soft);
+  font-size: 0.875rem;
+  line-height: 1.85;
+}
+
+.build-summary {
+  margin-top: auto;
+  margin-bottom: var(--space-6);
+  border-top: 2px solid var(--color-ink);
+}
+
+.build-summary div {
+  display: grid;
+  grid-template-columns: 4.5rem 1fr;
+  gap: var(--space-3);
+  padding: 0.6rem 0;
+  border-bottom: var(--line-hair);
+}
+
+.build-summary dt,
+.build-summary dd {
+  margin: 0;
+  font-family: var(--font-data);
+  font-size: 0.65rem;
+  letter-spacing: 0.04em;
+}
+
+.build-summary dt {
+  color: var(--color-ink-soft);
+  text-transform: uppercase;
+}
+
+.build-summary dd {
+  text-align: right;
+}
+
+.material-note {
+  padding-left: var(--space-3);
+  border-left: 2px solid var(--color-pista);
+}
+
+.material-note span {
+  font-family: var(--font-data);
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+}
+
+.material-note p {
+  margin: var(--space-2) 0 0;
+  color: var(--color-ink-soft);
+  font-size: 0.7rem;
+  line-height: 1.65;
+}
+
+.stage-toolbar {
+  position: absolute;
+  z-index: 4;
+  top: 0;
+  right: 0;
+  left: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-4) clamp(1rem, 2vw, 2rem);
+  border-bottom: 1px solid rgba(23, 23, 23, 0.18);
+  background: rgba(232, 225, 211, 0.92);
+}
+
+.stage-index {
+  display: flex;
+  gap: var(--space-3);
+  align-items: baseline;
+  font-family: var(--font-data);
+  font-size: 0.625rem;
+  letter-spacing: 0.08em;
+}
+
+.stage-index span {
+  color: var(--color-corsa);
+}
+
+.stage-actions {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.tool-button,
+.reset-button {
+  border: 1px solid var(--color-ink);
+  border-radius: 0;
+  background: transparent;
+  font-family: var(--font-data);
+  font-size: 0.625rem;
+  letter-spacing: 0.03em;
+  transition: background var(--duration-fast) ease, color var(--duration-fast) ease;
+}
+
+.tool-button {
+  padding: 0.55rem 0.75rem;
+}
+
+.tool-button:hover,
+.tool-button[aria-pressed="true"],
+.reset-button:hover {
+  background: var(--color-ink);
+  color: var(--color-paper);
+}
+
+.bike-stage {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+}
+
+.bike-stage::before,
+.bike-stage::after {
+  position: absolute;
+  z-index: 0;
+  content: "";
+  pointer-events: none;
+}
+
+.bike-stage::before {
+  top: 50%;
+  right: 6%;
+  left: 6%;
+  border-top: 1px solid rgba(23, 23, 23, 0.13);
+}
+
+.bike-stage::after {
+  top: 12%;
+  bottom: 10%;
+  left: 50%;
+  border-left: 1px solid rgba(23, 23, 23, 0.08);
+}
+
+#bike-canvas {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+}
+
+.selection-thread {
+  position: absolute;
+  z-index: 2;
+  right: -3rem;
+  bottom: 18%;
+  width: min(42vw, 34rem);
+  border-top: 2px solid var(--color-corsa);
+  transform: rotate(-11deg);
+  transform-origin: right center;
+  pointer-events: none;
+  transition: transform var(--duration-stage) var(--ease-mechanical);
+}
+
+[data-selected-part="wheelset"] .selection-thread {
+  transform: rotate(-4deg) translateY(2rem);
+}
+
+[data-selected-part="cockpit"] .selection-thread {
+  transform: rotate(-18deg) translateY(-3rem);
+}
+
+.stage-scale {
+  position: absolute;
+  z-index: 2;
+  bottom: 2.1rem;
+  left: clamp(1rem, 2vw, 2rem);
+  display: flex;
+  width: min(18rem, 34vw);
+  gap: var(--space-2);
+  align-items: center;
+  font-family: var(--font-data);
+  font-size: 0.55rem;
+}
+
+.stage-scale i {
+  flex: 1;
+  border-top: 1px solid var(--color-ink);
+}
+
+.interaction-hint {
+  position: absolute;
+  z-index: 2;
+  right: clamp(1rem, 2vw, 2rem);
+  bottom: 1.65rem;
+  margin: 0;
+  color: var(--color-ink-soft);
+  font-size: 0.65rem;
+}
+
+.interaction-hint span {
+  color: var(--color-ink);
+  font-family: var(--font-data);
+  font-size: 0.55rem;
+}
+
+.scene-fallback {
+  position: absolute;
+  z-index: 5;
+  inset: 22% 12%;
+  padding: clamp(1.5rem, 4vw, 3rem);
+  border: 1px solid var(--color-corsa);
+  background: var(--color-paper);
+}
+
+.scene-fallback h2 {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 5vw, 4rem);
+  line-height: 0.95;
+}
+
+.scene-fallback p:last-child {
+  max-width: 34rem;
+  color: var(--color-ink-soft);
+  line-height: 1.7;
+}
+
+.config-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: var(--space-5);
+  border-bottom: 2px solid var(--color-ink);
+}
+
+.config-header h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 2.25rem;
+  line-height: 1;
+}
+
+.config-section,
+.part-detail {
+  padding: var(--space-5);
+  border-bottom: var(--line-hair);
+}
+
+.section-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-4);
+}
+
+.section-heading h3 {
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.section-heading span {
+  color: var(--color-ink-soft);
+  font-family: var(--font-data);
+  font-size: 0.6rem;
+}
+
+.preset-list,
+.control-stack,
+.text-controls {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.color-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+
+.part-detail {
+  position: relative;
+  background: var(--color-ink);
+  color: var(--color-paper);
+}
+
+.part-detail::before {
+  position: absolute;
+  top: -1px;
+  left: 0;
+  width: 3.25rem;
+  border-top: 3px solid var(--color-corsa);
+  content: "";
+}
+
+.part-detail h3 {
+  margin-bottom: var(--space-3);
+  font-family: var(--font-display);
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.detail-copy,
+.detail-tip {
+  font-size: 0.75rem;
+  line-height: 1.75;
+}
+
+.detail-tip {
+  margin-bottom: 0;
+  padding-top: var(--space-3);
+  border-top: 1px solid rgba(241, 236, 223, 0.28);
+  color: var(--color-paper-deep);
+}
+
+.detail-tip span {
+  display: block;
+  margin-bottom: var(--space-1);
+  color: var(--color-white);
+  font-family: var(--font-data);
+  font-size: 0.55rem;
+  letter-spacing: 0.08em;
+}
+
+.reset-button {
+  width: calc(100% - 2 * var(--space-5));
+  margin: var(--space-5);
+  padding: 0.75rem 1rem;
+}
+
+@media (max-width: 1100px) {
+  .identity-panel h1 {
+    font-size: 3rem;
+    line-height: 0.75;
+  }
+
+  .brand-intro {
+    max-width: 30rem;
+    margin: 0;
+  }
+
+  .build-summary {
+    min-width: 16rem;
+    margin: 0;
+  }
+
+  .material-note {
+    display: none;
+  }
+
+  .bike-stage {
+    height: calc(100svh - 112px);
+  }
+}
+
+@media (max-width: 720px) {
+  .brand-lockup {
+    align-items: center;
+  }
+
+  .brand-mark {
+    width: 34px;
+    flex-basis: 34px;
+  }
+
+  .identity-panel h1 {
+    font-size: 2.5rem;
+  }
+
+  .brand-intro,
+  .build-summary,
+  .material-note {
+    display: none;
+  }
+
+  .stage-toolbar {
+    align-items: flex-start;
+    padding: var(--space-3);
+  }
+
+  .stage-index span {
+    display: none;
+  }
+
+  .stage-actions {
+    margin-left: auto;
+  }
+
+  .tool-button {
+    padding-inline: 0.6rem;
+  }
+
+  .bike-stage {
+    height: 52svh;
+    min-height: 380px;
+  }
+
+  .interaction-hint {
+    right: auto;
+    bottom: 1rem;
+    left: var(--space-3);
+    max-width: calc(100% - 2rem);
+    font-size: 0.58rem;
+  }
+
+  .stage-scale {
+    display: none;
+  }
+
+  .selection-thread {
+    bottom: 24%;
+    width: 58vw;
+  }
+
+  .config-header,
+  .config-section,
+  .part-detail {
+    padding: var(--space-4);
+  }
+
+  .reset-button {
+    width: calc(100% - 2 * var(--space-4));
+    margin: var(--space-4);
+  }
+}

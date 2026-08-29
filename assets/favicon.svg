@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title id="title">Velo Atelier bicycle mark</title>
+  <rect width="64" height="64" fill="#f1ecdf"/>
+  <circle cx="16" cy="42" r="12" fill="none" stroke="#171717" stroke-width="3"/>
+  <circle cx="48" cy="42" r="12" fill="none" stroke="#171717" stroke-width="3"/>
+  <path d="M16 42 28 18l10 24H16l15-13h17M28 18h10" fill="none" stroke="#8f1d2c" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

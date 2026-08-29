@@ -318,6 +318,7 @@ git commit -m "feat: 支援跨語系車架文字"
 - Create: `assets/favicon.svg`
 - Create: `robots.txt`
 - Create: `sitemap.xml`
+- Create: `src/app.js`（先建立頁面啟動殼層，Task 5 接入場景，Task 7 接入控制台）
 - Test: `tests/structure.test.js`
 
 **Interfaces:**
@@ -388,6 +389,7 @@ git commit -m "feat: 建立義式競速海報介面"
 - Create: `src/scene/primitives.js`
 - Create: `src/scene/bike-model.js`
 - Create: `src/scene/scene-controller.js`
+- Modify: `src/app.js`
 - Test: `tests/scene-contract.test.js`
 
 **Interfaces:**
@@ -427,7 +429,7 @@ Expected: FAIL，錯誤包含找不到場景檔案。
 
 - [ ] **Step 5: 實作場景、燈光與相機控制**
 
-場景使用透明 WebGL 畫布、ACES Filmic tone mapping、sRGB 色彩空間、限制為 2 的像素比例、PCFSoftShadowMap、2048×2048 主光陰影與接觸地面。`OrbitControls` 限制極角及距離；`Raycaster` 由指標座標選取 `selectable`；點選空白不改變目前零件。動畫迴圈只更新控制器與渲染，頁面隱藏時暫停。
+場景使用透明 WebGL 畫布、ACES Filmic tone mapping、sRGB 色彩空間、限制為 2 的像素比例、PCFSoftShadowMap、2048×2048 主光陰影與接觸地面。`OrbitControls` 限制極角及距離；`Raycaster` 由指標座標選取 `selectable`；點選空白不改變目前零件。動畫迴圈只更新控制器與渲染，頁面隱藏時暫停。同步修改 `src/app.js`，以 `DEFAULT_CONFIG` 建立場景，讓 M3 可在控制台整合前獨立進行瀏覽器驗證。
 
 - [ ] **Step 6: 執行場景契約及完整測試**
 

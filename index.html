@@ -1,0 +1,175 @@
+<!doctype html>
+<html class="no-js" lang="zh-Hant">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#f1ecdf">
+    <meta name="description" content="疾輪工房是一款可自由更換車架、輪組、煞車、傳動、色彩與跨語系車架文字的高細節 3D 公路車訂製模擬遊戲。">
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:title" content="Velo Atelier／疾輪工房">
+    <meta property="og:description" content="在義式競速工房中，從每個角度打造你的公路車。">
+    <meta property="og:url" content="https://andychung0214.github.io/velo-atelier/">
+    <link rel="canonical" href="https://andychung0214.github.io/velo-atelier/">
+    <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./styles/tokens.css">
+    <link rel="stylesheet" href="./styles/base.css">
+    <link rel="stylesheet" href="./styles/layout.css">
+    <link rel="stylesheet" href="./styles/components.css">
+    <title>Velo Atelier／疾輪工房｜3D 公路車訂製</title>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "SoftwareApplication",
+            "name": "Velo Atelier／疾輪工房",
+            "applicationCategory": "GameApplication",
+            "operatingSystem": "Web Browser",
+            "inLanguage": "zh-Hant",
+            "description": "可更換零件、顏色與車架文字的 3D 公路車訂製模擬遊戲",
+            "url": "https://andychung0214.github.io/velo-atelier/"
+          },
+          {
+            "@type": "Product",
+            "name": "Velo Atelier Custom Road Bike",
+            "category": "3D road bicycle configurator",
+            "description": "程式化建立的原創 3D 公路車客製展示模型",
+            "brand": { "@type": "Brand", "name": "Velo Atelier" }
+          }
+        ]
+      }
+    </script>
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js",
+          "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"
+        }
+      }
+    </script>
+    <script type="module" src="./src/app.js"></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">跳至 3D 公路車舞台</a>
+
+    <div class="app-shell">
+      <aside class="identity-panel" aria-labelledby="brand-title">
+        <div class="brand-lockup">
+          <svg class="brand-mark" viewBox="0 0 52 52" aria-hidden="true">
+            <circle cx="14" cy="34" r="10"></circle>
+            <circle cx="39" cy="34" r="10"></circle>
+            <path d="M14 34 23 17l8 17H14l11-10h14M23 17h8"></path>
+          </svg>
+          <div>
+            <p class="brand-kicker">OFFICINA DIGITALE · TAIPEI</p>
+            <h1 id="brand-title">疾輪<br>工房</h1>
+            <p class="brand-roman">VELO ATELIER</p>
+          </div>
+        </div>
+
+        <p class="brand-intro">從管型、輪框到最後一圈把手帶，建立只屬於你的競賽輪廓。</p>
+
+        <dl class="build-summary" id="config-summary" aria-label="目前配置摘要">
+          <div><dt>Frame</dt><dd data-summary="frame">競賽幾何</dd></div>
+          <div><dt>Brake</dt><dd data-summary="brake">碟煞</dd></div>
+          <div><dt>Wheel</dt><dd data-summary="wheel">刀輪</dd></div>
+          <div><dt>Shift</dt><dd data-summary="drivetrain">電子變速</dd></div>
+        </dl>
+
+        <div class="material-note">
+          <span>MODEL NOTE</span>
+          <p>本模型用於設計試配，不代表真實零件尺寸或機械相容性。</p>
+        </div>
+      </aside>
+
+      <main class="stage-panel" id="main-content" tabindex="-1">
+        <header class="stage-toolbar" aria-label="3D 舞台工具">
+          <div class="stage-index">
+            <span>LIVE OBJECT</span>
+            <strong>ROAD / 001</strong>
+          </div>
+          <div class="stage-actions">
+            <button class="tool-button" type="button" data-action="reset-view">
+              <span aria-hidden="true">⌖</span> 重設視角
+            </button>
+            <button class="tool-button" type="button" data-action="toggle-rotate" aria-pressed="false">
+              <span aria-hidden="true">↻</span> 自動旋轉
+            </button>
+          </div>
+        </header>
+
+        <section class="bike-stage" aria-label="可互動 3D 公路車">
+          <canvas id="bike-canvas" aria-label="可旋轉與縮放的客製化公路車"></canvas>
+          <div class="scene-fallback" id="scene-fallback" role="alert" hidden>
+            <p class="fallback-code">WEBGL / UNAVAILABLE</p>
+            <h2>3D 舞台暫時無法啟動</h2>
+            <p data-fallback-message>請確認瀏覽器已啟用硬體加速，並重新整理頁面。</p>
+          </div>
+          <div class="selection-thread" aria-hidden="true"></div>
+          <div class="stage-scale" aria-hidden="true">
+            <span>0</span><i></i><span>700C</span>
+          </div>
+          <p class="interaction-hint"><span>DRAG</span> 旋轉　<span>SCROLL / PINCH</span> 縮放　<span>CLICK</span> 檢視零件</p>
+        </section>
+      </main>
+
+      <aside class="config-panel" id="configurator" aria-labelledby="config-title">
+        <header class="config-header">
+          <div>
+            <p class="section-code">CONFIGURA / 2026</p>
+            <h2 id="config-title">客製設定</h2>
+          </div>
+          <span class="build-number">BUILD 01</span>
+        </header>
+
+        <section class="config-section" aria-labelledby="preset-title">
+          <div class="section-heading">
+            <h3 id="preset-title">工房配色</h3>
+            <span>03</span>
+          </div>
+          <div class="preset-list" id="preset-list"></div>
+        </section>
+
+        <section class="config-section" aria-labelledby="spec-title">
+          <div class="section-heading">
+            <h3 id="spec-title">車體規格</h3>
+            <span>05</span>
+          </div>
+          <div class="control-stack" id="spec-controls"></div>
+        </section>
+
+        <section class="config-section" aria-labelledby="color-title">
+          <div class="section-heading">
+            <h3 id="color-title">零件色彩</h3>
+            <span>08</span>
+          </div>
+          <div class="color-grid" id="color-controls"></div>
+        </section>
+
+        <section class="config-section" aria-labelledby="lettering-title">
+          <div class="section-heading">
+            <h3 id="lettering-title">車架文字</h3>
+            <span>CJK</span>
+          </div>
+          <div class="text-controls" id="text-controls"></div>
+        </section>
+
+        <section class="part-detail" id="part-detail" aria-live="polite">
+          <p class="detail-eyebrow">FRAME / 01</p>
+          <h3>車架系統</h3>
+          <p class="detail-copy">車架決定整車的幾何、剛性與騎乘姿勢，是所有零件的結構核心。</p>
+          <p class="detail-tip"><span>工房筆記</span> 先依騎乘目標選幾何，再考慮塗裝與零件。</p>
+        </section>
+
+        <button class="reset-button" type="button" data-action="reset-config">回復工房預設</button>
+      </aside>
+    </div>
+
+    <div class="sr-only" id="status-live" role="status" aria-live="polite" aria-atomic="true"></div>
+    <noscript>請啟用 JavaScript 以操作 3D 公路車與客製設定。</noscript>
+  </body>
+</html>
