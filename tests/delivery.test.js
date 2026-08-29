@@ -36,6 +36,22 @@ test('靜態路徑解析會拒絕上層目錄與隱藏檔案', () => {
   assert.equal(resolveStaticPath(projectRoot, '/'), path.join(projectRoot, 'index.html'));
 });
 
+test('GitHub Pages workflow 使用官方 Actions 與最小部署權限', async () => {
+  const workflow = await readFile(
+    path.join(projectRoot, '.github/workflows/deploy-pages.yml'),
+    'utf8',
+  );
+
+  assert.match(workflow, /branches:\s*\["main"\]/);
+  assert.match(workflow, /contents:\s*read/);
+  assert.match(workflow, /pages:\s*write/);
+  assert.match(workflow, /id-token:\s*write/);
+  assert.match(workflow, /uses:\s*actions\/checkout@v6/);
+  assert.match(workflow, /uses:\s*actions\/configure-pages@v5/);
+  assert.match(workflow, /uses:\s*actions\/upload-pages-artifact@v4/);
+  assert.match(workflow, /uses:\s*actions\/deploy-pages@v4/);
+});
+
 test('零相依靜態伺服器提供首頁、正確 MIME 與 404', async (context) => {
   const server = createStaticServer({ root: projectRoot });
   await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));

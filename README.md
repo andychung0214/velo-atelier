@@ -2,6 +2,8 @@
 
 Velo Atelier 是一款桌機瀏覽器優先、支援行動觸控的 3D 公路車訂製模擬遊戲。專案以 HTML、CSS、Vanilla JavaScript 與 three.js 製作，不需要後端服務或建構步驟，可直接部署至靜態網站空間。
 
+正式網站：[https://andychung0214.github.io/velo-atelier/](https://andychung0214.github.io/velo-atelier/)
+
 ## 遊戲介紹
 
 玩家可以從各個角度旋轉、縮放並檢視一輛程式化建立的高細節公路車，再依騎乘想像更換車架幾何、碟煞或 C 夾煞、框高或板輪、機械或電子變速、彎把與把手帶。每個主要零件都可點選，介面會說明它在騎乘中的用途。
@@ -85,6 +87,8 @@ npm run verify
 - 保留 `src/`、`styles/`、`assets/`、`index.html`、`robots.txt` 與 `sitemap.xml` 的相對路徑。
 - 允許連線至 jsDelivr，以載入鎖定版本的 three.js 0.180.0。
 
+目前 `.github/workflows/deploy-pages.yml` 會在 `main` 更新時，使用 GitHub 官方 Pages Actions 自動發布至上述正式網站。
+
 若正式網址不同，部署前應更新 `index.html`、`sitemap.xml` 中的 canonical 與網站網址。
 
 ## 已知限制
@@ -98,4 +102,3 @@ npm run verify
 ## 授權
 
 程式碼以 [MIT License](LICENSE) 授權。專案中的識別圖示、程式化模型與介面視覺均為本專案原創；「Velo Atelier／疾輪工房」不代表任何真實自行車品牌。
-
