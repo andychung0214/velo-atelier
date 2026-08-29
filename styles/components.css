@@ -325,6 +325,184 @@
   gap: var(--space-2);
 }
 
+.preset-option {
+  display: grid;
+  grid-template-columns: 2.4rem 1fr auto;
+  gap: var(--space-3);
+  align-items: center;
+  width: 100%;
+  min-height: 58px;
+  padding: 0.55rem;
+  border: 1px solid var(--color-line);
+  border-radius: 0;
+  background: transparent;
+  text-align: left;
+}
+
+.preset-option:hover,
+.preset-option[aria-pressed="true"] {
+  border-color: var(--color-ink);
+  background: var(--color-white);
+}
+
+.preset-swatch {
+  position: relative;
+  width: 2.2rem;
+  height: 2.2rem;
+  background: var(--preset-primary);
+}
+
+.preset-swatch::after {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 42%;
+  height: 42%;
+  background: var(--preset-accent);
+  content: "";
+}
+
+.preset-copy {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.preset-copy strong {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  letter-spacing: 0.035em;
+}
+
+.preset-copy small,
+.preset-arrow {
+  color: var(--color-ink-soft);
+  font-family: var(--font-data);
+  font-size: 0.55rem;
+}
+
+.spec-group {
+  min-width: 0;
+  margin: 0;
+  padding: 0 0 var(--space-3);
+  border: 0;
+  border-bottom: var(--line-hair);
+}
+
+.spec-group:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.spec-label,
+.field-control > span {
+  display: block;
+  margin-bottom: var(--space-2);
+  color: var(--color-ink-soft);
+  font-size: 0.68rem;
+}
+
+.segmented-control {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(5.5rem, 1fr));
+  gap: 1px;
+  background: var(--color-line);
+  border: 1px solid var(--color-line);
+}
+
+.spec-option {
+  display: grid;
+  align-content: center;
+  gap: 0.18rem;
+  min-height: 54px;
+  padding: 0.45rem;
+  border: 0;
+  border-radius: 0;
+  background: var(--color-paper);
+  text-align: left;
+}
+
+.spec-option:hover,
+.spec-option[aria-pressed="true"] {
+  background: var(--color-ink);
+  color: var(--color-paper);
+}
+
+.spec-option span {
+  font-size: 0.7rem;
+  font-weight: 500;
+}
+
+.spec-option small {
+  color: inherit;
+  font-family: var(--font-data);
+  font-size: 0.5rem;
+  opacity: 0.68;
+}
+
+.color-control {
+  display: grid;
+  grid-template-columns: 2.5rem minmax(0, 1fr);
+  gap: var(--space-2);
+  align-items: center;
+  min-height: 54px;
+  padding: 0.42rem;
+  border: 1px solid var(--color-line);
+}
+
+.color-control:focus-within,
+.color-control:hover {
+  border-color: var(--color-ink);
+}
+
+.color-control input {
+  width: 2.4rem;
+  min-height: 42px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.color-copy {
+  display: grid;
+  min-width: 0;
+  gap: 0.12rem;
+}
+
+.color-copy strong {
+  overflow: hidden;
+  font-size: 0.65rem;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.color-value {
+  color: var(--color-ink-soft);
+  font-family: var(--font-data);
+  font-size: 0.5rem;
+}
+
+.field-control {
+  display: block;
+}
+
+.field-control input,
+.field-control select {
+  width: 100%;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid var(--color-line);
+  border-radius: 0;
+  background: var(--color-white);
+  color: var(--color-ink);
+  font-size: 0.75rem;
+}
+
+.field-control input:hover,
+.field-control select:hover {
+  border-color: var(--color-ink);
+}
+
 .part-detail {
   position: relative;
   background: var(--color-ink);

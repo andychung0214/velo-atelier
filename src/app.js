@@ -1,5 +1,8 @@
-import { DEFAULT_CONFIG } from './core/config.js';
+import { DEFAULT_CONFIG, normalizeConfig, updateConfig } from './core/config.js';
+import { createConfigStorage } from './core/storage.js';
 import { PART_CATALOG } from './data/parts.js';
+import { PRESETS } from './data/presets.js';
+import { createConfigurator } from './ui/configurator.js';
 
 document.documentElement.classList.remove('no-js');
 document.documentElement.dataset.appPhase = 'loading';
@@ -11,6 +14,23 @@ const fallbackMessage = fallback?.querySelector('[data-fallback-message]');
 const detail = document.querySelector('#part-detail');
 const rotateButton = document.querySelector('[data-action="toggle-rotate"]');
 let sceneController = null;
+let config = { ...DEFAULT_CONFIG };
+let configurator = null;
+
+function getStorageAdapter() {
+  try {
+    return window.localStorage;
+  } catch {
+    return {
+      getItem() { throw new Error('storage blocked'); },
+      setItem() { throw new Error('storage blocked'); },
+      removeItem() { throw new Error('storage blocked'); },
+    };
+  }
+}
+
+const configStorage = createConfigStorage(getStorageAdapter());
+config = configStorage.load();
 
 function showSceneError(error) {
   if (fallbackMessage) {
@@ -25,23 +45,48 @@ function showSceneError(error) {
 function renderPartDetail(partId) {
   const part = PART_CATALOG[partId];
   if (!part || !detail) return;
-  detail.querySelector('.detail-eyebrow').textContent = part.eyebrow;
-  detail.querySelector('h3').textContent = part.name;
-  detail.querySelector('.detail-copy').textContent = part.description;
-  detail.querySelector('.detail-tip').innerHTML = '';
-  const label = document.createElement('span');
-  label.textContent = '工房筆記';
-  detail.querySelector('.detail-tip').append(label, document.createTextNode(part.tip));
-  stage.dataset.selectedPart = partId;
+  configurator?.selectPart(partId);
   sceneController?.selectPart(partId);
 }
+
+function commitConfig(nextConfig, announcement) {
+  config = normalizeConfig(nextConfig);
+  configurator?.update(config);
+  sceneController?.update(config);
+  const saved = configStorage.save(config);
+  if (announcement) configurator?.announce(announcement);
+  if (!saved) configurator?.announce('設定已套用，但目前瀏覽器無法儲存。');
+}
+
+function applyPatch(patch) {
+  commitConfig(updateConfig(config, patch));
+}
+
+function handleAction(action, payload) {
+  if (action === 'apply-preset') {
+    const preset = PRESETS.find(({ id }) => id === payload);
+    if (preset) commitConfig(preset.config, `已套用 ${preset.name}。`);
+  } else if (action === 'reset-config') {
+    configStorage.clear();
+    commitConfig(DEFAULT_CONFIG, '已回復工房預設。');
+  }
+}
+
+configurator = createConfigurator({
+  root: document.querySelector('#configurator'),
+  detailRoot: detail,
+  initialConfig: config,
+  onChange: applyPatch,
+  onSelectPart: (partId) => sceneController?.selectPart(partId),
+  onAction: handleAction,
+});
 
 async function bootstrapScene() {
   try {
     const { createSceneController } = await import('./scene/scene-controller.js');
     sceneController = await createSceneController({
       canvas,
-      config: DEFAULT_CONFIG,
+      config,
       onPartSelect: renderPartDetail,
       onError: showSceneError,
     });
@@ -57,9 +102,7 @@ document.querySelector('[data-action="reset-view"]')?.addEventListener('click', 
 });
 
 rotateButton?.addEventListener('click', () => {
-  const next = rotateButton.getAttribute('aria-pressed') !== 'true';
-  const active = sceneController?.setAutoRotate(next) ?? false;
-  rotateButton.setAttribute('aria-pressed', String(active));
+  applyPatch({ autoRotate: !config.autoRotate });
 });
 
 bootstrapScene();
