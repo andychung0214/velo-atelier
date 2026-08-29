@@ -505,14 +505,20 @@ function nearestPartId(object) {
 }
 
 function isolatePartMaterials(root) {
+  const sourceMaterials = new Set();
   root.traverse((object) => {
     if (!object.isMesh || !hasPartAncestor(object)) return;
     if (Array.isArray(object.material)) {
-      object.material = object.material.map((material) => material.clone());
+      object.material = object.material.map((material) => {
+        sourceMaterials.add(material);
+        return material.clone();
+      });
     } else if (object.material) {
+      sourceMaterials.add(object.material);
       object.material = object.material.clone();
     }
   });
+  return sourceMaterials;
 }
 
 function updateColors(root, config) {
@@ -556,7 +562,10 @@ export function createBikeModel(THREE, initialConfig) {
       });
       framePoints.downTube.add(textDecal.group);
     }
-    isolatePartMaterials(root);
+    const sourceMaterials = isolatePartMaterials(root);
+    for (const material of new Set([...Object.values(materials), ...sourceMaterials])) {
+      material.dispose();
+    }
 
     selectable = [];
     root.traverse((object) => {

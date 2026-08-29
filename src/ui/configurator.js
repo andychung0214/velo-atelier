@@ -191,13 +191,42 @@ export function createConfigurator({
   const stageRoot = document.querySelector('.bike-stage');
   let currentConfig = { ...initialConfig };
   let selectedPartId = 'frame';
+  let controlsMounted = false;
 
   function render(config) {
     const model = getConfiguratorModel(config);
-    renderPresets(presetRoot, model);
-    renderSpecs(specRoot, model);
-    renderColors(colorRoot, model);
-    renderTextControls(textRoot, model);
+    if (!controlsMounted) {
+      renderPresets(presetRoot, model);
+      renderSpecs(specRoot, model);
+      renderColors(colorRoot, model);
+      renderTextControls(textRoot, model);
+      controlsMounted = true;
+    }
+
+    for (const preset of model.presets) {
+      presetRoot.querySelector(`[data-preset-id="${preset.id}"]`)
+        ?.setAttribute('aria-pressed', String(preset.selected));
+    }
+
+    for (const spec of model.specs) {
+      for (const option of spec.options) {
+        specRoot.querySelector(
+          `[data-config-key="${spec.key}"][data-config-value="${option.value}"]`,
+        )?.setAttribute('aria-pressed', String(option.selected));
+      }
+    }
+
+    for (const color of model.colors) {
+      const input = colorRoot.querySelector(`input[name="${color.key}"]`);
+      if (input && input.value !== color.value) input.value = color.value;
+      const value = input?.closest('.color-control')?.querySelector('.color-value');
+      if (value) value.textContent = color.value.toUpperCase();
+    }
+
+    const textInput = textRoot.querySelector('input[name="frameText"]');
+    if (textInput && textInput.value !== model.frameText) textInput.value = model.frameText;
+    const fontSelect = textRoot.querySelector('select[name="font"]');
+    if (fontSelect && fontSelect.value !== config.font) fontSelect.value = config.font;
 
     for (const key of ['frame', 'brake', 'wheel', 'drivetrain']) {
       const target = summaryRoot?.querySelector(`[data-summary="${key}"]`);

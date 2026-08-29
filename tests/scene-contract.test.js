@@ -89,6 +89,24 @@ test('更新規格時輪組與煞車維持互斥', () => {
   bike.dispose();
 });
 
+test('建模後會釋放不再被網格參照的共享材質', () => {
+  const originalDispose = THREE.Material.prototype.dispose;
+  let disposeCount = 0;
+  THREE.Material.prototype.dispose = function trackedDispose() {
+    disposeCount += 1;
+    return originalDispose.call(this);
+  };
+
+  let bike;
+  try {
+    bike = createBikeModel(THREE, DEFAULT_CONFIG);
+    assert.ok(disposeCount >= 12, `預期釋放至少 12 個來源材質，實際為 ${disposeCount}`);
+  } finally {
+    bike?.dispose();
+    THREE.Material.prototype.dispose = originalDispose;
+  }
+});
+
 test('顏色更新不需重建車體並會更新對應材質', () => {
   const bike = createBikeModel(THREE, DEFAULT_CONFIG);
   const rootId = bike.root.id;
