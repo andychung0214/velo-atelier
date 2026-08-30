@@ -16,16 +16,14 @@ export function getRenderProfile({ width, devicePixelRatio, reducedMotion }) {
 }
 
 export function getCameraDistanceScale(aspect, width = Number.POSITIVE_INFINITY) {
-  const aspectScale = !Number.isFinite(aspect) || aspect >= 1
-    ? 1
-    : Math.min(1.55, Number((1 / aspect).toFixed(2)));
-  const compactScale = width <= 420 ? 1.45 : 1;
-  return Math.max(aspectScale, compactScale);
+  if (width <= 420) return 1.1;
+  if (Number.isFinite(aspect) && aspect < 0.72) return 1.2;
+  return 1;
 }
 
 export function getResponsiveFov(width) {
-  if (width <= 420) return 50;
-  if (width <= 600) return 42;
+  if (width <= 420) return 42;
+  if (width <= 600) return 38;
   return 34;
 }
 

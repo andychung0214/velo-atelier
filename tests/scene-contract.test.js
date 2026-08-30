@@ -320,13 +320,13 @@ test('Canvas 鍵盤操作映射旋轉、縮放與重設視角', () => {
 
 test('狹長舞台會增加初始相機距離以容納完整車體', () => {
   assert.equal(getCameraDistanceScale(1, 714), 1);
-  assert.equal(getCameraDistanceScale(0.85, 375), 1.45);
-  assert.equal(getCameraDistanceScale(0.52, 519), 1.55);
+  assert.equal(getCameraDistanceScale(0.85, 375), 1.1);
+  assert.equal(getCameraDistanceScale(0.52, 519), 1.2);
 });
 
 test('窄舞台使用較寬視野保留完整車體', () => {
-  assert.equal(getResponsiveFov(375), 50);
-  assert.equal(getResponsiveFov(519), 42);
+  assert.equal(getResponsiveFov(375), 42);
+  assert.equal(getResponsiveFov(519), 38);
   assert.equal(getResponsiveFov(714), 34);
 });
 
