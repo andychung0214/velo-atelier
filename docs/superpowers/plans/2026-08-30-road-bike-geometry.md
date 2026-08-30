@@ -66,7 +66,8 @@ test('三種車架維持真實公路車比例', () => {
 
 - [ ] **Step 2: 執行測試並確認因 `bike-geometry.js` 不存在而失敗**
 
-Run: `node --test tests/scene-contract.test.js`  
+Run: `node --test tests/scene-contract.test.js`
+
 Expected: FAIL，錯誤包含找不到 `src/scene/bike-geometry.js`。
 
 - [ ] **Step 3: 實作固定拓樸與三種合理變體**
@@ -89,7 +90,8 @@ export function getBikeGeometry(frame = 'race') {
 
 - [ ] **Step 4: 執行幾何測試並確認通過**
 
-Run: `node --test tests/scene-contract.test.js`  
+Run: `node --test tests/scene-contract.test.js`
+
 Expected: PASS，三種車架的輪距、五通下沉、座管角、頭管角及頭管長度均在指定範圍。
 
 - [ ] **Step 5: 提交純幾何里程碑**
@@ -139,7 +141,8 @@ test('車架代表網格映射到正確零件說明', () => {
 
 - [ ] **Step 2: 執行測試並確認頭管／叉腳角色不存在而失敗**
 
-Run: `node --test tests/scene-contract.test.js`  
+Run: `node --test tests/scene-contract.test.js`
+
 Expected: FAIL，第一個缺少角色為 `frame-head-tube`。
 
 - [ ] **Step 3: 依唯一幾何來源重建車架**
@@ -152,7 +155,8 @@ Expected: FAIL，第一個缺少角色為 `frame-head-tube`。
 
 - [ ] **Step 5: 執行場景測試並確認車架角色與既有選項通過**
 
-Run: `node --test tests/scene-contract.test.js`  
+Run: `node --test tests/scene-contract.test.js`
+
 Expected: PASS，頭管歸 `frame`、叉腳歸 `fork`，輪組與煞車互斥測試仍通過。
 
 - [ ] **Step 6: 提交車架里程碑**
@@ -189,7 +193,8 @@ test('煞車與水壺架位於對應安裝區域', () => {
 
 - [ ] **Step 2: 執行測試並確認固定座標模型未提供角色而失敗**
 
-Run: `node --test tests/scene-contract.test.js`  
+Run: `node --test tests/scene-contract.test.js`
+
 Expected: FAIL，煞車或水壺架角色不存在。
 
 - [ ] **Step 3: 將煞車與傳動改由幾何安裝點衍生**
@@ -202,7 +207,8 @@ Expected: FAIL，煞車或水壺架角色不存在。
 
 - [ ] **Step 5: 執行場景與完整測試**
 
-Run: `npm test`  
+Run: `npm test`
+
 Expected: PASS，全部測試通過且無警告／未處理錯誤。
 
 - [ ] **Step 6: 提交安裝點里程碑**
@@ -229,12 +235,14 @@ README 說明模型依真實公路車比例重建但不代表特定品牌工程�
 
 - [ ] **Step 2: 執行完整驗證**
 
-Run: `npm run verify`  
+Run: `npm run verify`
+
 Expected: 全部測試通過、0 failures。
 
 - [ ] **Step 3: 啟動靜態伺服器並驗證桌機與行動版**
 
-Run: `npm start`  
+Run: `npm start`
+
 Expected: 1440×900 側視與三分之四視角輪廓正常；390×844 可旋轉、縮放與點選，控制台無錯誤。
 
 - [ ] **Step 4: 驗證代表性零件的實際點選**
@@ -255,4 +263,3 @@ git log --oneline origin/main..HEAD
 ```
 
 推送前向使用者顯示 remote、branch 與 commit；合回 `main` 後推送 `origin/main`，最後實際開啟 GitHub Pages 核對新模型。
-
