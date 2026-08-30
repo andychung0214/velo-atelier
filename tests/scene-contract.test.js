@@ -32,6 +32,23 @@ function findRole(root, role) {
   return match;
 }
 
+function centerOf(object) {
+  return new THREE.Box3().setFromObject(object).getCenter(new THREE.Vector3());
+}
+
+function distanceToSegment2d(point, start, end) {
+  const segmentX = end[0] - start[0];
+  const segmentY = end[1] - start[1];
+  const lengthSquared = segmentX ** 2 + segmentY ** 2;
+  const projection = (
+    ((point.x - start[0]) * segmentX) + ((point.y - start[1]) * segmentY)
+  ) / lengthSquared;
+  const amount = Math.max(0, Math.min(1, projection));
+  const nearestX = start[0] + segmentX * amount;
+  const nearestY = start[1] + segmentY * amount;
+  return Math.hypot(point.x - nearestX, point.y - nearestY);
+}
+
 function acuteAngleDegrees(start, end) {
   const deltaX = Math.abs(end[0] - start[0]);
   const deltaY = Math.abs(end[1] - start[1]);
@@ -132,6 +149,44 @@ test('車架與輪組代表網格映射到正確零件說明', () => {
     assert.ok(object, `${role} 必須存在`);
     assert.equal(nearestPartId(object), partId, `${role} 必須標示為 ${partId}`);
   }
+
+  bike.dispose();
+});
+
+test('附屬零件代表網格映射到正確零件說明', () => {
+  const bike = createBikeModel(THREE, { ...DEFAULT_CONFIG, brake: 'caliper' });
+  const expectedPartByRole = {
+    'brake-front-caliper': 'brake',
+    'brake-rear-caliper': 'brake',
+    'crankset-chainring': 'crankset',
+    'cassette-cog': 'cassette',
+    'drivetrain-rear-derailleur': 'drivetrain',
+    'cockpit-stem': 'cockpit',
+    'bar-tape-left': 'barTape',
+    seatpost: 'seatpost',
+    'saddle-shell': 'saddle',
+    'bottle-cage-rail': 'bottleCage',
+  };
+
+  for (const [role, partId] of Object.entries(expectedPartByRole)) {
+    const object = findRole(bike.root, role);
+    assert.ok(object, `${role} 必須存在`);
+    assert.equal(nearestPartId(object), partId, `${role} 必須標示為 ${partId}`);
+  }
+
+  bike.dispose();
+});
+
+test('C 夾煞與水壺架位於車架的實際安裝區域', () => {
+  const bike = createBikeModel(THREE, { ...DEFAULT_CONFIG, brake: 'caliper' });
+  const geometry = getBikeGeometry('race');
+  const frontCaliper = centerOf(findRole(bike.root, 'brake-front-caliper'));
+  const rearCaliper = centerOf(findRole(bike.root, 'brake-rear-caliper'));
+  const cageRail = centerOf(findRole(bike.root, 'bottle-cage-rail'));
+
+  assert.ok(frontCaliper.distanceTo(new THREE.Vector3(...geometry.frontBrakeMount, 0)) < 0.18);
+  assert.ok(rearCaliper.distanceTo(new THREE.Vector3(...geometry.rearBrakeMount, 0)) < 0.18);
+  assert.ok(distanceToSegment2d(cageRail, geometry.headBottom, geometry.bottomBracket) < 0.24);
 
   bike.dispose();
 });
