@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import * as THREE from 'three';
 
 import { DEFAULT_CONFIG } from '../src/core/config.js';
+import { getBikeGeometry, pointOnSegment } from '../src/scene/bike-geometry.js';
 import { createBikeModel } from '../src/scene/bike-model.js';
 import { tubeBetween } from '../src/scene/primitives.js';
 import {
@@ -22,6 +23,44 @@ function nearestPartId(object) {
   }
   return null;
 }
+
+function acuteAngleDegrees(start, end) {
+  const deltaX = Math.abs(end[0] - start[0]);
+  const deltaY = Math.abs(end[1] - start[1]);
+  return Math.atan2(deltaY, deltaX) * (180 / Math.PI);
+}
+
+test('三種車架維持真實公路車比例', () => {
+  for (const frame of ['race', 'aero', 'endurance']) {
+    const geometry = getBikeGeometry(frame);
+    const wheelDiameter = geometry.wheelRadius * 2;
+    const wheelbase = geometry.frontAxle[0] - geometry.rearAxle[0];
+    const bottomBracketDrop = geometry.rearAxle[1] - geometry.bottomBracket[1];
+    const headTubeLength = Math.hypot(
+      geometry.headTop[0] - geometry.headBottom[0],
+      geometry.headTop[1] - geometry.headBottom[1],
+    );
+    const seatTubeAngle = acuteAngleDegrees(geometry.bottomBracket, geometry.seatTop);
+    const headTubeAngle = acuteAngleDegrees(geometry.headBottom, geometry.headTop);
+
+    assert.ok(wheelbase / wheelDiameter >= 1.48 && wheelbase / wheelDiameter <= 1.62);
+    assert.ok(bottomBracketDrop >= 0.16 && bottomBracketDrop <= 0.22);
+    assert.ok(headTubeLength / wheelDiameter >= 0.18 && headTubeLength / wheelDiameter <= 0.28);
+    assert.ok(seatTubeAngle >= 72 && seatTubeAngle <= 75);
+    assert.ok(headTubeAngle >= 70 && headTubeAngle <= 74.5);
+  }
+});
+
+test('車架衍生安裝點可沿實際車管內插且不共用可變座標', () => {
+  const race = getBikeGeometry('race');
+  const secondRace = getBikeGeometry('race');
+  const midpoint = pointOnSegment(race.headBottom, race.bottomBracket, 0.5);
+
+  assert.ok(Math.abs(midpoint[0] - 0.325) < 1e-9);
+  assert.ok(Math.abs(midpoint[1] - 1.16) < 1e-9);
+  race.headTop[0] = 99;
+  assert.equal(secondRace.headTop[0], 0.81);
+});
 
 test('tubeBetween 依兩點建立正確長度與中心的車管', () => {
   const material = new THREE.MeshBasicMaterial();
