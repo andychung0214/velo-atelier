@@ -1,4 +1,5 @@
 import { createMaterials } from './materials.js';
+import { getBikeGeometry } from './bike-geometry.js';
 import { createTextDecal } from './text-decal.js';
 import {
   curvedTube,
@@ -19,10 +20,10 @@ const COLOR_KEYS = [
   'hardwareColor',
   'textColor',
 ];
-const WHEEL_RADIUS = 0.86;
-const REAR_X = -1.73;
-const FRONT_X = 1.73;
-const AXLE_Y = 0.88;
+const BASE_GEOMETRY = getBikeGeometry('race');
+const WHEEL_RADIUS = BASE_GEOMETRY.wheelRadius;
+const [REAR_X, AXLE_Y] = BASE_GEOMETRY.rearAxle;
+const [FRONT_X] = BASE_GEOMETRY.frontAxle;
 
 function vector(THREE, x, y, z = 0) {
   return new THREE.Vector3(x, y, z);
@@ -40,118 +41,131 @@ function addMesh(group, mesh, materialKey) {
   return mesh;
 }
 
-function addTube(THREE, group, start, end, radiusStart, radiusEnd, material, materialKey) {
-  return addMesh(
+function markComponent(object, componentRole) {
+  object.userData.componentRole = componentRole;
+  object.name = componentRole;
+  return object;
+}
+
+function addTube(
+  THREE,
+  group,
+  start,
+  end,
+  radiusStart,
+  radiusEnd,
+  material,
+  materialKey,
+  componentRole,
+) {
+  const mesh = addMesh(
     group,
     tubeBetween(THREE, start, end, radiusStart, radiusEnd, material),
     materialKey,
   );
-}
-
-function geometryForFrame(frame) {
-  if (frame === 'aero') {
-    return {
-      bottomBracket: [-0.3, 0.86],
-      seatTop: [-0.53, 2.13],
-      headTop: [0.77, 2.14],
-      headBottom: [0.91, 1.2],
-      tubeScale: 1.22,
-    };
-  }
-
-  if (frame === 'endurance') {
-    return {
-      bottomBracket: [-0.38, 0.84],
-      seatTop: [-0.61, 2.08],
-      headTop: [0.72, 2.26],
-      headBottom: [0.9, 1.18],
-      tubeScale: 0.98,
-    };
-  }
-
-  return {
-    bottomBracket: [-0.36, 0.84],
-    seatTop: [-0.58, 2.13],
-    headTop: [0.77, 2.12],
-    headBottom: [0.91, 1.14],
-    tubeScale: 1,
-  };
+  if (componentRole) markComponent(mesh, componentRole);
+  return mesh;
 }
 
 function buildFrame(THREE, root, config, materials) {
-  const geometry = geometryForFrame(config.frame);
+  const geometry = getBikeGeometry(config.frame);
   const bb = vector(THREE, ...geometry.bottomBracket, 0);
   const seat = vector(THREE, ...geometry.seatTop, 0);
   const headTop = vector(THREE, ...geometry.headTop, 0);
   const headBottom = vector(THREE, ...geometry.headBottom, 0);
-  const rearLeft = vector(THREE, REAR_X, AXLE_Y, -0.075);
-  const rearRight = vector(THREE, REAR_X, AXLE_Y, 0.075);
+  const rearAxle = vector(THREE, ...geometry.rearAxle, 0);
+  const frontAxle = vector(THREE, ...geometry.frontAxle, 0);
+  const forkCrown = vector(THREE, ...geometry.forkCrown, 0);
+  const rearLeft = rearAxle.clone().setZ(-0.075);
+  const rearRight = rearAxle.clone().setZ(0.075);
 
   const frame = createPartGroup(THREE, 'frame');
-  addTube(THREE, frame, bb, seat, 0.083 * geometry.tubeScale, 0.066, materials.frame, 'frameColor');
-  addTube(THREE, frame, headBottom, headTop, 0.09, 0.082, materials.frame, 'frameColor');
-  addTube(THREE, frame, rearLeft, vector(THREE, bb.x, bb.y, -0.055), 0.034, 0.052, materials.frame, 'frameColor');
-  addTube(THREE, frame, rearRight, vector(THREE, bb.x, bb.y, 0.055), 0.034, 0.052, materials.frame, 'frameColor');
-  addTube(THREE, frame, rearLeft, vector(THREE, seat.x, seat.y - 0.1, -0.042), 0.027, 0.042, materials.frame, 'frameColor');
-  addTube(THREE, frame, rearRight, vector(THREE, seat.x, seat.y - 0.1, 0.042), 0.027, 0.042, materials.frame, 'frameColor');
+  addTube(THREE, frame, bb, seat, 0.064 * geometry.tubeScale, 0.052, materials.frame, 'frameColor', 'frame-seat-tube');
+  addTube(THREE, frame, headBottom, headTop, 0.064, 0.058, materials.frame, 'frameColor', 'frame-head-tube');
+  addTube(THREE, frame, rearLeft, vector(THREE, bb.x, bb.y, -0.055), 0.024, 0.039, materials.frame, 'frameColor', 'frame-chainstay-left');
+  addTube(THREE, frame, rearRight, vector(THREE, bb.x, bb.y, 0.055), 0.024, 0.039, materials.frame, 'frameColor', 'frame-chainstay-right');
+  addTube(THREE, frame, rearLeft, vector(THREE, seat.x, seat.y - 0.08, -0.04), 0.021, 0.032, materials.frame, 'frameColor', 'frame-seatstay-left');
+  addTube(THREE, frame, rearRight, vector(THREE, seat.x, seat.y - 0.08, 0.04), 0.021, 0.032, materials.frame, 'frameColor', 'frame-seatstay-right');
 
   const bbShell = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.12, 0.12, 0.19, 24),
+    new THREE.CylinderGeometry(0.095, 0.095, 0.18, 24),
     materials.frame,
   );
   bbShell.rotation.x = Math.PI / 2;
   bbShell.position.copy(bb);
   bbShell.castShadow = true;
+  markComponent(bbShell, 'frame-bottom-bracket-shell');
   addMesh(frame, bbShell, 'frameColor');
 
   const topTube = createPartGroup(THREE, 'topTube');
-  const topRadius = config.frame === 'aero' ? 0.105 : 0.07;
-  addTube(THREE, topTube, seat, headTop, topRadius, topRadius * 0.9, materials.frame, 'frameColor');
-  const accentStart = seat.clone().lerp(headTop, 0.08).add(vector(THREE, 0, 0.045, 0));
-  const accentEnd = seat.clone().lerp(headTop, 0.92).add(vector(THREE, 0, 0.045, 0));
+  const topRadius = config.frame === 'aero' ? 0.072 : 0.052;
+  addTube(THREE, topTube, seat, headTop, topRadius, topRadius * 0.92, materials.frame, 'frameColor', 'top-tube');
+  const accentStart = seat.clone().lerp(headTop, 0.08).add(vector(THREE, 0, 0.037, 0));
+  const accentEnd = seat.clone().lerp(headTop, 0.92).add(vector(THREE, 0, 0.037, 0));
   addTube(THREE, topTube, accentStart, accentEnd, 0.012, 0.012, materials.accent, 'accentColor');
 
   const downTube = createPartGroup(THREE, 'downTube');
-  const downRadius = config.frame === 'aero' ? 0.135 : 0.095;
-  addTube(THREE, downTube, headBottom, bb, downRadius * 0.88, downRadius, materials.frame, 'frameColor');
+  const downRadius = config.frame === 'aero' ? 0.1 : 0.076;
+  addTube(THREE, downTube, headBottom, bb, downRadius * 0.86, downRadius, materials.frame, 'frameColor', 'down-tube');
 
   const fork = createPartGroup(THREE, 'fork');
-  const forkCrown = headBottom.clone().add(vector(THREE, 0.02, -0.08, 0));
-  addTube(THREE, fork, headTop, headBottom, 0.055, 0.07, materials.fork, 'forkColor');
+  addTube(
+    THREE,
+    fork,
+    forkCrown.clone().setZ(-0.075),
+    forkCrown.clone().setZ(0.075),
+    0.047,
+    0.047,
+    materials.fork,
+    'forkColor',
+    'fork-crown',
+  );
   for (const z of [-0.075, 0.075]) {
     addTube(
       THREE,
       fork,
-      vector(THREE, forkCrown.x, forkCrown.y, z * 0.62),
-      vector(THREE, FRONT_X, AXLE_Y, z),
-      0.054,
-      0.026,
+      vector(THREE, forkCrown.x, forkCrown.y, z * 0.7),
+      vector(THREE, frontAxle.x, frontAxle.y, z),
+      0.047,
+      0.022,
       materials.fork,
       'forkColor',
+      z < 0 ? 'fork-blade-left' : 'fork-blade-right',
     );
   }
 
   root.add(frame, topTube, downTube, fork);
-  return { bb, seat, headTop, headBottom, downTube };
+  return {
+    geometry,
+    bb,
+    seat,
+    headTop,
+    headBottom,
+    rearAxle,
+    frontAxle,
+    forkCrown,
+    downTube,
+  };
 }
 
-function createWheel(THREE, style, x, isRear, materials) {
+function createWheel(THREE, style, axle, wheelRadius, isRear, materials) {
   const side = isRear ? 'rear' : 'front';
   const resolvedStyle = style === 'disc' && !isRear ? 'deep' : style;
   const wheel = new THREE.Group();
   wheel.name = `${side}-${resolvedStyle}-wheel`;
-  wheel.position.set(x, AXLE_Y, 0);
+  wheel.position.set(axle[0], axle[1], 0);
 
   const tire = new THREE.Mesh(
-    new THREE.TorusGeometry(WHEEL_RADIUS, 0.031, 12, 96),
+    new THREE.TorusGeometry(wheelRadius, 0.029, 12, 96),
     materials.rubber,
   );
   tire.castShadow = true;
   tire.receiveShadow = true;
+  markComponent(tire, `wheel-${side}-tire`);
   wheel.add(tire);
 
   const rimDepth = resolvedStyle === 'deep' ? 0.15 : 0.055;
-  const rimOuter = WHEEL_RADIUS - 0.045;
+  const rimOuter = wheelRadius - 0.043;
   const rimInner = rimOuter - rimDepth;
   const rimRing = new THREE.Mesh(
     new THREE.RingGeometry(rimInner, rimOuter, 96),
@@ -159,12 +173,14 @@ function createWheel(THREE, style, x, isRear, materials) {
   );
   rimRing.position.z = isRear ? -0.006 : 0.006;
   rimRing.castShadow = true;
+  markComponent(rimRing, `wheel-${side}-rim`);
   addMesh(wheel, rimRing, 'rimColor');
 
   const rimEdge = new THREE.Mesh(
     new THREE.TorusGeometry(rimOuter, resolvedStyle === 'deep' ? 0.022 : 0.015, 10, 96),
     materials.rim,
   );
+  markComponent(rimEdge, `wheel-${side}-rim-edge`);
   addMesh(wheel, rimEdge, 'rimColor');
 
   const hub = new THREE.Mesh(
@@ -173,6 +189,7 @@ function createWheel(THREE, style, x, isRear, materials) {
   );
   hub.rotation.x = Math.PI / 2;
   hub.castShadow = true;
+  markComponent(hub, `wheel-${side}-hub`);
   addMesh(wheel, hub, 'hardwareColor');
 
   if (style === 'disc' && isRear) {
@@ -212,24 +229,27 @@ function createWheel(THREE, style, x, isRear, materials) {
         resolvedStyle === 'deep' ? materials.rim : materials.hardware,
         7,
       );
+      markComponent(spoke, `wheel-${side}-spoke`);
       addMesh(wheel, spoke, resolvedStyle === 'deep' ? 'rimColor' : 'hardwareColor');
     }
   }
 
-  const axle = new THREE.Mesh(
+  const axleMesh = new THREE.Mesh(
     new THREE.CylinderGeometry(0.012, 0.012, 0.28, 12),
     materials.darkHardware,
   );
-  axle.rotation.x = Math.PI / 2;
-  wheel.add(axle);
+  axleMesh.rotation.x = Math.PI / 2;
+  markComponent(axleMesh, `wheel-${side}-axle`);
+  wheel.add(axleMesh);
   return wheel;
 }
 
 function buildWheelset(THREE, root, config, materials) {
+  const geometry = getBikeGeometry(config.frame);
   const group = createPartGroup(THREE, 'wheelset');
   group.add(
-    createWheel(THREE, config.wheel, REAR_X, true, materials),
-    createWheel(THREE, config.wheel, FRONT_X, false, materials),
+    createWheel(THREE, config.wheel, geometry.rearAxle, geometry.wheelRadius, true, materials),
+    createWheel(THREE, config.wheel, geometry.frontAxle, geometry.wheelRadius, false, materials),
   );
   root.add(group);
 }

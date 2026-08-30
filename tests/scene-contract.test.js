@@ -24,6 +24,14 @@ function nearestPartId(object) {
   return null;
 }
 
+function findRole(root, role) {
+  let match = null;
+  root.traverse((object) => {
+    if (!match && object.userData.componentRole === role) match = object;
+  });
+  return match;
+}
+
 function acuteAngleDegrees(start, end) {
   const deltaX = Math.abs(end[0] - start[0]);
   const deltaY = Math.abs(end[1] - start[1]);
@@ -101,6 +109,30 @@ test('公路車模型包含所有可說明的主要零件', () => {
 
   assert.ok(bike.selectable.length >= 40);
   assert.ok(bike.selectable.every((object) => object.isMesh));
+  bike.dispose();
+});
+
+test('車架與輪組代表網格映射到正確零件說明', () => {
+  const bike = createBikeModel(THREE, DEFAULT_CONFIG);
+  const expectedPartByRole = {
+    'frame-head-tube': 'frame',
+    'frame-seat-tube': 'frame',
+    'frame-chainstay-left': 'frame',
+    'frame-seatstay-left': 'frame',
+    'top-tube': 'topTube',
+    'down-tube': 'downTube',
+    'fork-crown': 'fork',
+    'fork-blade-left': 'fork',
+    'wheel-front-tire': 'wheelset',
+    'wheel-rear-rim': 'wheelset',
+  };
+
+  for (const [role, partId] of Object.entries(expectedPartByRole)) {
+    const object = findRole(bike.root, role);
+    assert.ok(object, `${role} 必須存在`);
+    assert.equal(nearestPartId(object), partId, `${role} 必須標示為 ${partId}`);
+  }
+
   bike.dispose();
 });
 
